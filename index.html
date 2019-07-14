@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Liker Graph</title>
+
+	<style type="text/css">
+		
+		textarea {overflow: hidden;}
+		#graph {margin:0 auto;text-align: center;padding-top:50px;}
+		#graph p {font:normal 14px verdana;max-width: 700px;margin:0 auto;padding-bottom:20px;}
+		#graph p strong {display: block;padding-bottom:25px;}
+		#graph .item {background:#E1E1E1;min-width:24px;display: inline-block;font:normal 14px verdana;padding:5px 10px;}
+		#graph #r1, .r1 {background:#D8B365}
+		#graph #r2, .r2 {background:#EBD9B2}
+		#graph #r3, .r3 {background:#E1E1E1}
+		#graph #r4, .r4 {background:#ACD9D5}
+		#graph #r5, .r5 {background:#5AB4AC;}
+		#graph #negative {background:none;text-align: right;padding-right: 10px;font-weight: bold;min-width:40px;}
+		#graph #positive {background:none;text-align: left;padding-left: 10px;font-weight: bold;min-widthwidth:40px;}
+
+		#legend {padding-left:10px;font:normal 11px verdana;text-align: center;margin-top: 20px;}
+		#legend strong {font-weight: normal;vertical-align: top;margin-right:8px;}
+		#legend .label {display: inline-block;width:14px; height: 13px;margin-right: 3px;}
+
+	</style>
+
+	<script type="text/javascript">
+			
+		var questsA = [];
+		var questsB = [];
+		questsA.push("Senti-me mais confiante ao resolver os desafios utilizando apenas o computador.");
+		questsA.push("Acredito que a minha habilidade/experiência com o computador ajudou a interagir corretamente com os blocos e resolver os desafios facilmente.");
+		questsA.push("Achei muito interessante e empolgante programar online na plataforma Code.org.");
+		questsA.push("Visualizar imediatamente se a minha solução/resposta está correta na própria plataforma é muito melhor, pois posso corrigir os erros e tentar novamente.");
+		questsA.push("Meu/minha parceiro(a) e eu conseguimos trabalhar bem em equipe mesmo dividindo um computador.");
+		questsA.push("Eu gostaria de continuar resolvendo mais desafios utilizando o computador, pois achei mais divertido.");
+		questsA.push("Esta atividade despertou meu interesse por aprender programação, gostaria de aprender mais.");
+		questsA.push("Gostei mais da experiência usando apenas o computador do que utilizando apenas as peças de manusear.");
+
+		questsB.push("Senti-me mais confiante ao resolver a atividade utilizando as peças de montar sem o computador.");
+		questsB.push("Acredito que a experiência com jogos de tabuleiro e/ou quebra-cabeças que tive anteriormente me ajudaram a usar as peças com mais facilidade.");
+		questsB.push("Achei muito interessante e empolgante ver que as peças que eu organizei foram capazes de programar um jogo na plataforma online Code.org.");
+		questsB.push("Fiquei bastante ansioso para saber se as peças que eu organizei estavam corretas e se elas conseguiriam resolver o desafio na plataforma.");
+		questsB.push("Manusear as peças facilitou o trabalho em equipe com o(a) meu/minha parceiro(a) de atividade.");
+		questsB.push("Eu gostaria de continuar resolvendo mais desafios utilizando as peças, pois achei bastante divertido.");
+		questsB.push("Esta atividade despertou meu interesse por aprender programação, gostaria de aprender mais.");
+		questsB.push("Gostei mais da experiência com as peças do que usando somente o computador.");
+
+
+	</script>
+
+</head>
+<body>
+
+	<div style="position: absolute;">
+		Copiar os percentuais abaixo e colar na caixa de entrada
+		<br />
+		<br />
+12,5%<br />
+8,33%<br />
+29,17%<br />
+33,33%<br />
+16,67%
+	</div>
+
+	<center>
+		<form>
+		<textarea id="input" rows="6" cols="10"></textarea>
+		<br />
+		<br />
+		Questionário: <label><input type="radio" value="A" checked="checked" name="quest"> A</label>
+		<label><input type="radio" value="B" name="quest"> B</label>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		Item: <select name="item">
+			<option>1</option>
+			<option>2</option>
+			<option>3</option>
+			<option>4</option>
+			<option>5</option>
+			<option>6</option>
+			<option>7</option>
+			<option>8</option>
+		</select>
+<br />
+		<br />
+		<input type="button" value="Gerar Gráfico" onclick="buildGraph()" />
+		<input type="reset" value="Limpar" onclick="$('input').focus()"/>
+		</form>
+
+	</center>
+
+
+	<div id="graph">
+
+		<p><strong>Questionário <span id="quest">X</span> &ndash; Item <span id="item">Y</span></strong> <span id="quest_text">???</span></p>
+
+		<div class="item" id="negative">0%</div><div class="item" id="r1">0%</div><div class="item" id="r2">0%</div><div class="item" id="r3">0%</div><div class="item" id="r4">0%</div><div class="item" id="r5">0%</div><div class="item" id="positive">0%</div>
+
+	</div>
+	<div id="legend">
+		<strong><span class="label r1"></span>Discordo totalmente</strong>
+		<strong><span class="label r2"></span>Discordo parcialmente</strong>
+		<strong><span class="label r3"></span>Nem concordo, nem discordo</strong>
+		<strong><span class="label r4"></span>Concordo parcialmente</strong>
+		<strong><span class="label r5"></span>Concordo totalmente</strong>
+	</div>
+
+	<script type="text/javascript">
+
+		var max_width = 500;
+		var ini_width = 24;
+
+		function $(el) {
+			return document.getElementById(el);
+		}
+
+		function val(el) {
+			x = document.getElementsByName(el);				
+			if (x.length == 1) {
+				return x[0][x[0].selectedIndex].value;
+			} else {
+				for(var i in x) {
+					if (x[i].checked) {
+						return x[i].value;
+					}
+				}
+			}
+			
+		}
+		
+		function buildGraph() {
+
+			var q = val('quest');
+			var qi = val('item');
+			
+			if (q == "A") {
+				var qt = questsA[qi-1];
+			} else {
+				var qt = questsB[qi-1];
+			}
+
+			$("quest").innerText = q;
+			$("item").innerText = qi;
+			$("quest_text").innerText = qt;
+
+			txt = $("input").value.split('\n');
+			if (txt.length > 5) {
+				txt.pop();
+			}
+
+			var percs = [];
+
+			for(var i in txt) {
+
+				var e = parseFloat(txt[i].replace("%","").replace(",","."));
+				percs.push(e);				
+				console.log(e);
+				var w = (e/100)*max_width;
+				var idx = "r"+(+i+1);
+				$(idx).innerText = txt[i];
+				$(idx).style.width = w + ini_width + "px";
+				
+			}
+
+			
+			var neg = percs[0] + percs[1];
+			var pos = percs[3] + percs[4];
+			
+			
+			$("negative").innerText = roundFormat(neg);
+			$("positive").innerText = roundFormat(pos);
+
+		}
+
+		function roundFormat(n) {
+			n = Math.round(n*100);
+			n = n/100;
+			n = (n + "%").replace(".",",");
+			return n;
+
+		}
+
+	</script>
+
+</body>
+</html>
